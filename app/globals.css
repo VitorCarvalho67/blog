@@ -409,10 +409,16 @@ textarea { resize: vertical; min-height: 24rem; line-height: 1.8; }
   color: var(--accent-txt);
   border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
 }
-/* Estado de leitura, não visibilidade: fica no cinza do texto secundário, com
-   fundo em vez de cor, para não disputar atenção com o selo de "amigos", que é
-   o que muda quem pode ler o post. */
-.selo.lido { background: var(--bg-header); }
+/* Pílula cheia, na mesma cor e no mesmo raio do botão "Entrar": é o estado que
+   a pessoa procura de relance ao correr o olho pela lista. Branco sobre
+   --accent-solido é a combinação já calibrada para texto pequeno. */
+.selo.lido {
+  background: var(--accent-solido);
+  border-color: var(--accent-solido);
+  color: var(--sobre-acento);
+  border-radius: 999px;
+  padding: .1rem .5rem;
+}
 
 /* ----------------------------------------------------------------- avisos */
 .aviso {
