@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { dataHora } from "@/lib/posts";
 import { renderizarMarkdown } from "@/lib/markdown";
 import { apagarComentario, comentar } from "@/lib/actions";
+import { AvisoColar } from "@/components/aviso-ia";
 
 type Post = {
   id: string;
@@ -52,7 +53,9 @@ function Formulario({
         placeholder={
           parentId ? "Responder…" : "Markdown funciona aqui também."
         }
+        data-sem-colar={`colar-${campo}`}
       />
+      <AvisoColar id={`colar-${campo}`} />
 
       {erro && (
         <p className="err">

@@ -6,9 +6,10 @@ Tipografia de terminal levada a sério — slab serif nos títulos, monoespaçad
 corpo, texto justificado com hifenização. **Zero componentes client**: não existe
 um único `"use client"` no projeto. O site funciona inteiro com JavaScript
 desligado, incluindo login, publicação, troca de tema e alternância entre lista
-e grade. O único script do lado do cliente é o atalho `Ctrl+K` da busca, seis
-linhas carregadas por `next/script` — um `<script>` inline dentro de um
-componente React não roda em navegação client-side, e o React 19 avisa.
+e grade. São dois scripts do lado do cliente, ambos pequenos e ambos
+carregados por `next/script`: o atalho `Ctrl+K` da busca e o bloqueio de
+colagem nas caixas de texto — um `<script>` inline dentro de um componente
+React não roda em navegação client-side, e o React 19 avisa.
 
 ## Rodando
 
@@ -47,9 +48,19 @@ e, principalmente, dentro do editor — no lugar exato onde alguém colaria:
 > Aqui seu cérebro será o responsável por criar algo. Talvez ele nem lembre
 > mais como se faz. Vai ter de ter paciência.
 
-É uma regra da casa, escrita em [components/aviso-ia.tsx](components/aviso-ia.tsx),
-não uma checagem automática. Detector de IA não funciona; o que funciona é
-deixar claro qual é o trato.
+É uma regra da casa, escrita em [components/aviso-ia.tsx](components/aviso-ia.tsx).
+Detector de IA não funciona; o que funciona é deixar claro qual é o trato.
+
+O que existe de automático é um empurrão, não uma checagem: **colar nas caixas
+de texto está desligado** (editor e comentários). Passa link sozinho, e passa
+texto recortado da própria caixa, senão reordenar os próprios parágrafos ficaria
+impossível. O código está em `SEM_COLAR`, em [app/layout.tsx](app/layout.tsx).
+
+E é só um empurrão mesmo. Quem digitar o texto publica igual, e quem desligar o
+JavaScript também, porque o site inteiro funciona sem JS de propósito. Fechar
+esse desvio custaria exigir JavaScript para publicar, e a promessa acima vale
+mais do que o buraco. O que o bloqueio corta é o caminho preguiçoso, que é por
+onde texto de máquina realmente entra.
 
 ## Visibilidade e liberação de acesso
 

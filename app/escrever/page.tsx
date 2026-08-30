@@ -5,7 +5,7 @@ import { getUser } from "@/lib/auth";
 import { apagar, publicar } from "@/lib/actions";
 import { EXPLICACAO, ROTULO, type Visibilidade } from "@/lib/visibilidade";
 import { Shell } from "@/components/shell";
-import AvisoIA from "@/components/aviso-ia";
+import AvisoIA, { AvisoColar } from "@/components/aviso-ia";
 
 export const metadata = { title: "Escrever" };
 
@@ -90,7 +90,9 @@ export default async function Escrever({
               name="corpo"
               defaultValue={post?.body ?? ""}
               required
+              data-sem-colar="colar-corpo"
             />
+            <AvisoColar id="colar-corpo" />
           </div>
 
           <fieldset className="escolhas">

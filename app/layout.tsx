@@ -46,6 +46,36 @@ var b=e.key==="/"&&!d&&!e.ctrlKey&&!e.metaKey&&!e.altKey;
 if(!k&&!b)return;e.preventDefault();
 var i=document.getElementById("q");if(i){i.focus();i.select()}})`;
 
+/* A política da casa aplicada no ponto exato em que ela é quebrada: colar.
+   Passa link sozinho (o que o editor já trata como mídia) e passa texto que
+   acabou de ser recortado da própria caixa, senão reordenar os próprios
+   parágrafos ficaria impossível. O resto é barrado.
+
+   Não é detector de IA e não tenta ser: quem digitar o texto publica igual, e
+   quem desligar o JavaScript também, porque o site inteiro funciona sem JS de
+   propósito e isso não muda por causa daqui. O que isto corta é o caminho
+   preguiçoso, que é o caminho por onde texto de máquina realmente entra. */
+const SEM_COLAR = `(function(){
+var proprio="";
+function lembra(e){
+var a=e.target;
+if(a&&a.tagName==="TEXTAREA"&&a.dataset.semColar){
+proprio=a.value.slice(a.selectionStart,a.selectionEnd)}}
+function bloqueia(e,d){
+var a=e.target;
+if(!a||a.tagName!=="TEXTAREA"||!a.dataset.semColar||!d)return;
+var t=d.getData("text")||"";
+if(t&&t===proprio)return;
+if(/^\\s*https?:\\/\\/\\S+\\s*$/.test(t))return;
+e.preventDefault();
+var m=document.getElementById(a.dataset.semColar);
+if(m){m.hidden=false}}
+addEventListener("copy",lembra);
+addEventListener("cut",lembra);
+addEventListener("paste",function(e){bloqueia(e,e.clipboardData)});
+addEventListener("drop",function(e){bloqueia(e,e.dataTransfer)});
+})()`;
+
 export default async function RootLayout({
   children,
 }: {
@@ -148,6 +178,9 @@ export default async function RootLayout({
 
         <Script id="atalho-busca" strategy="afterInteractive">
           {ATALHO}
+        </Script>
+        <Script id="sem-colar" strategy="afterInteractive">
+          {SEM_COLAR}
         </Script>
       </body>
     </html>
