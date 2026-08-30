@@ -1,0 +1,76 @@
+# ---------------------------------------------------------------------------
+# ~/blog
+#
+#   App      ->  https://blog.solveweb.com.br  (host 127.0.0.1:8897)
+#   Postgres ->  banco "blog"                  (host 127.0.0.1:5439)
+#
+# Quem serve o domínio é o nginx-proxy-manager, que alcança 'blog:3000' pelo
+# nome na rede compartilhada. As portas publicadas ficam só no loopback.
+# ---------------------------------------------------------------------------
+name: blog
+
+services:
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: blog
+    # Porta própria desta stack (5432/5434/5436-5438 já são de outros projetos),
+    # publicada só no loopback para debug com psql.
+    ports:
+      - "127.0.0.1:5439:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U blog -d blog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  blog:
+    build: .
+    image: blog:latest
+    container_name: blog
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      # O fuso do processo Node. As colunas são Timestamptz, então o valor lido
+      # não depende disto; quem depende é qualquer `new Date()` do servidor.
+      # A exibição usa TZ_EXIBICAO, que é fixo de propósito (ver README).
+      TZ: America/Sao_Paulo
+    ports:
+      - "127.0.0.1:8897:3000"
+    networks:
+      - default
+      - npm_network
+    # O watchdog do host (cron, ops/health-watchdog.sh) reinicia containers
+    # unhealthy. "/" responde 200 sem sessão, e a página consulta o banco:
+    # se o Postgres cair, o healthcheck acusa.
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://127.0.0.1:3000/', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+  # Mesma rede do nginx-proxy-manager. Externa, já existente:
+  # NÃO é criada nem alterada por este compose.
+  npm_network:
+    external: true
+    name: solveweb-site_web
