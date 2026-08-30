@@ -53,3 +53,19 @@ export const Rss = ({ size = 16 }: P) => (
     <circle cx="5" cy="19" r="1.5" fill="currentColor" stroke="none" />
   </svg>
 );
+
+/* Marca de leitura. Dois desenhos para os dois estados: círculo vazio é "ainda
+   não li", círculo com o traço dentro é "li". A cor sozinha não poderia
+   carregar essa diferença. */
+export const Circulo = ({ size = 14 }: P) => (
+  <svg {...svg(size)}>
+    <circle cx="12" cy="12" r="9" />
+  </svg>
+);
+
+export const Check = ({ size = 14 }: P) => (
+  <svg {...svg(size)}>
+    <circle cx="12" cy="12" r="9" />
+    <path d="M8 12.3l2.6 2.6L16 9.5" />
+  </svg>
+);

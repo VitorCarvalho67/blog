@@ -271,6 +271,40 @@ export async function revogarAmigo(fd: FormData) {
   redirect("/conta");
 }
 
+/* ------------------------------------------------------- marca de leitura */
+
+export async function alternarLido(fd: FormData) {
+  const user = await getUser();
+  if (!user) redirect("/entrar");
+
+  const post = await prisma.post.findUnique({
+    where: { id: str(fd, "id") },
+    select: { id: true, slug: true, authorId: true, visibility: true },
+  });
+  // mesma regra dos comentários: quem não enxerga o post não marca leitura
+  // nele, e o redirect é para "/", sem confirmar que aquele id existe.
+  if (!post || !(await podeLer(post, user))) redirect("/");
+
+  // Apagar primeiro e criar só se não havia nada é o que faz o botão alternar
+  // sem uma consulta antes: uma ida ao banco decide e aplica o estado novo.
+  const { count } = await prisma.leitura.deleteMany({
+    where: { userId: user.id, postId: post.id },
+  });
+  if (count === 0) {
+    try {
+      await prisma.leitura.create({
+        data: { userId: user.id, postId: post.id },
+      });
+    } catch (e) {
+      // dois cliques ao mesmo tempo: o par é único, o segundo perde e tudo bem
+      if (!isUniqueError(e)) throw e;
+    }
+  }
+
+  revalidatePath(`/post/${post.slug}`);
+  redirect(voltarPara(fd));
+}
+
 /* ------------------------------------------------- preferências de leitura */
 
 const ANO = 60 * 60 * 24 * 365;

@@ -23,6 +23,7 @@ model User {
   posts        Post[]
   sessions     Session[]
   comentarios  Comentario[]
+  leituras     Leitura[]
 
   /// pessoas que este usuário liberou para ver seus posts de amigos
   liberacoes Acesso[] @relation("Liberou")
@@ -69,6 +70,7 @@ model Post {
   createdAt  DateTime     @default(now()) @db.Timestamptz(3)
   updatedAt  DateTime     @updatedAt @db.Timestamptz(3)
   comentarios Comentario[]
+  leituras    Leitura[]
 
   @@index([visibility, createdAt])
   @@index([authorId, createdAt])
@@ -93,4 +95,20 @@ model Comentario {
   @@index([postId, createdAt])
   @@index([parentId])
   @@index([authorId])
+}
+
+/// Marca de leitura: `user` já leu `post`. A linha só existe enquanto está
+/// marcado, então desmarcar é apagar, e não há estado "lido = false" para
+/// manter em dia. O par é único: marcar duas vezes não cria duas linhas.
+model Leitura {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([userId, postId])
+  /// a listagem pergunta "o que este usuário já leu", nunca "quem leu este post"
+  @@index([userId])
 }

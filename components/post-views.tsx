@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getUser } from "@/lib/auth";
+import { lidosDo } from "@/lib/leitura";
 import { dataCurta, leitura, resumo, type PostCard } from "@/lib/posts";
 import { ROTULO } from "@/lib/visibilidade";
 
@@ -27,6 +29,27 @@ export function Selo({ post }: { post: PostCard }) {
   );
 }
 
+/**
+ * Marca "lido" nos cartões.
+ *
+ * Componente que busca o próprio dado, em vez de um prop descendo das páginas:
+ * as cinco listagens (feed, arquivo, busca, tag e perfil) montam estes mesmos
+ * cartões, e todas teriam de passar a lista adiante. `getUser()` e `lidosDo()`
+ * são embrulhados no `cache()` do React, então uma página inteira de cartões
+ * custa duas queries, não duas por cartão.
+ */
+export async function MarcaLida({ postId }: { postId: string }) {
+  const user = await getUser();
+  if (!user) return null;
+  if (!(await lidosDo(user.id)).has(postId)) return null;
+  return (
+    <>
+      {" "}
+      <span className="selo lido">lido</span>
+    </>
+  );
+}
+
 function Contagem({ n }: { n: number }) {
   if (n === 0) return null;
   return <> · {n === 1 ? "1 comentário" : `${n} comentários`}</>;
@@ -39,6 +62,7 @@ export function Cartao({ post }: { post: PostCard }) {
         {dataCurta(post.createdAt)}
         <Contagem n={post._count.comentarios} />
         <Selo post={post} />
+        <MarcaLida postId={post.id} />
       </div>
       <h3>
         <Link href={`/post/${post.slug}`}>{post.title}</Link>
@@ -70,6 +94,7 @@ export function Linha({
         )}
         <Contagem n={post._count.comentarios} />
         <Selo post={post} />
+        <MarcaLida postId={post.id} />
       </div>
       <h3>
         <Link href={`/post/${post.slug}`}>{post.title}</Link>
@@ -87,6 +112,7 @@ export function Compacta({ post }: { post: PostCard }) {
       <span>
         <Link href={`/post/${post.slug}`}>{post.title}</Link>
         <Selo post={post} />
+        <MarcaLida postId={post.id} />
       </span>
     </li>
   );
