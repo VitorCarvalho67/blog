@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Visibilidade {
+  PUBLICO
+  AMIGOS
+  PRIVADO
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  username     String    @unique
+  passwordHash String
+  bio          String?
+  createdAt    DateTime  @default(now()) @db.Timestamptz(3)
+  posts        Post[]
+  sessions     Session[]
+  comentarios  Comentario[]
+
+  /// pessoas que este usuário liberou para ver seus posts de amigos
+  liberacoes Acesso[] @relation("Liberou")
+  /// pessoas que liberaram este usuário
+  acessos    Acesso[] @relation("Recebeu")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([userId])
+}
+
+/// Liberação de acesso: `owner` deixa `friend` ler seus posts com visibilidade AMIGOS.
+model Acesso {
+  id        String   @id @default(cuid())
+  ownerId   String
+  friendId  String
+  owner     User     @relation("Liberou", fields: [ownerId], references: [id], onDelete: Cascade)
+  friend    User     @relation("Recebeu", fields: [friendId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@unique([ownerId, friendId])
+  @@index([friendId])
+}
+
+model Post {
+  id         String       @id @default(cuid())
+  slug       String       @unique
+  title      String
+  body       String
+  tags       String[]
+  featured   Boolean      @default(false)
+  visibility Visibilidade @default(PUBLICO)
+  /// o autor pode fechar a conversa sem apagar o que já foi dito
+  commentsOpen Boolean    @default(true)
+  authorId   String
+  author     User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime     @updatedAt @db.Timestamptz(3)
+  comentarios Comentario[]
+
+  @@index([visibility, createdAt])
+  @@index([authorId, createdAt])
+  @@index([featured, createdAt])
+  @@index([tags], type: Gin)
+}
+
+/// Comentário de um post. Uma resposta aponta pro comentário raiz via `parentId`
+/// — a árvore tem no máximo dois níveis, de propósito.
+model Comentario {
+  id        String   @id @default(cuid())
+  body      String
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Comentario?  @relation("Respostas", fields: [parentId], references: [id], onDelete: Cascade)
+  respostas Comentario[] @relation("Respostas")
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([postId, createdAt])
+  @@index([parentId])
+  @@index([authorId])
+}
