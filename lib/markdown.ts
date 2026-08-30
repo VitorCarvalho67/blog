@@ -74,8 +74,17 @@ export function textoSimples(md: string) {
     // URL sozinha vira mídia no post; no resumo ela só polui
     .replace(/^\s*https?:\/\/\S+\s*$/gm, " ")
     .replace(/^\s{0,3}>+\s?/gm, "")
-    .replace(/^\s{0,3}#{1,6}\s+/gm, "")
     .replace(/^\s{0,3}([-*+]|\d+\.)\s+/gm, "")
+    // Só tirar o # deixaria o título de seção na mesma linha do parágrafo
+    // seguinte, e o colapso de espaços logo abaixo os grudaria numa frase só:
+    // "O porquê do blog Este não é o primeiro post". O ponto fecha o título e
+    // separa os dois. Não se acrescenta ponto a título que já termina em
+    // pontuação, senão "E agora?" viraria "E agora?.".
+    // Roda depois da regra de lista de propósito: "## 2026" vira "2026. ", que
+    // aquela regra confundiria com item de lista numerada e apagaria.
+    .replace(/^\s{0,3}#{1,6}\s+(.*?)\s*$/gm, (_, t: string) =>
+      /[.!?:;…]$/.test(t) ? `${t} ` : `${t}. `,
+    )
     .replace(/^\s{0,3}([-*_]\s*){3,}$/gm, " ")
     .replace(/\*\*|__|\*|_|~~/g, "")
     .replace(/^\s*\|?[\s:|-]+\|\s*$/gm, " ")
