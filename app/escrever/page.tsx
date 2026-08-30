@@ -79,7 +79,7 @@ export default async function Escrever({
             <label htmlFor="corpo">
               Corpo — Markdown: <code>## título</code>, <code>**negrito**</code>,{" "}
               <code>[link](url)</code>, <code>- lista</code>,{" "}
-              <code>&gt; citação</code>, <code>```bloco de código```</code>,
+              <code>--- separador</code>, <code>&gt; citação</code>, <code>```bloco de código```</code>,
               tabela. Quebra de linha simples vira quebra de linha. Link de
               YouTube, Vimeo, imagem ou vídeo <strong>sozinho numa linha</strong>{" "}
               (com linha em branco antes e depois) vira player ou figura — o

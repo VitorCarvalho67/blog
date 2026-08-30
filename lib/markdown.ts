@@ -1,4 +1,4 @@
-import { unified } from "unified";
+import { unified, type Processor } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
@@ -45,8 +45,28 @@ const schema = {
   },
 };
 
+/**
+ * Desliga o título "setext": no Markdown padrão, uma linha só de traços logo
+ * abaixo de um parágrafo promove aquele parágrafo inteiro a <h2>.
+ *
+ * É a pegadinha de quem escreve texto corrido e usa uma linha de traços como
+ * separador entre parágrafos: em vez do separador, os parágrafos viram títulos
+ * enormes, sem nenhum aviso. Aqui título se escreve com # (é o que o editor
+ * ensina, e é o que os posts usam), então a sintaxe não faz falta. Desligá-la é
+ * a mesma escolha do remark-breaks: o texto sai como foi digitado.
+ *
+ * Efeito colateral bem-vindo: com ela fora do caminho, uma linha de três ou
+ * mais traços passa a valer como separador mesmo colada no parágrafo de cima.
+ */
+function semTituloSetext(this: Processor) {
+  const data = this.data();
+  data.micromarkExtensions ??= [];
+  data.micromarkExtensions.push({ disable: { null: ["setextUnderline"] } });
+}
+
 const processador = unified()
   .use(remarkParse)
+  .use(semTituloSetext)
   .use(remarkGfm)
   .use(remarkBreaks)
   .use(remarkMidia)
