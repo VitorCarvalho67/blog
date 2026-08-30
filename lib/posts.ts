@@ -12,7 +12,7 @@ export const CAMPOS_CARD = {
   visibility: true,
   createdAt: true,
   author: { select: { username: true } },
-  _count: { select: { comentarios: true } },
+  _count: { select: { comentarios: true, leituras: true } },
 } as const;
 
 export type PostCard = {
@@ -25,7 +25,7 @@ export type PostCard = {
   visibility: Visibilidade;
   createdAt: Date;
   author: { username: string };
-  _count: { comentarios: number };
+  _count: { comentarios: number; leituras: number };
 };
 
 const MESES = [

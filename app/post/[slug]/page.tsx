@@ -20,7 +20,10 @@ type Props = {
 const buscar = (slug: string) =>
   prisma.post.findUnique({
     where: { slug },
-    include: { author: { select: { username: true, bio: true } } },
+    include: {
+      author: { select: { username: true, bio: true } },
+      _count: { select: { leituras: true } },
+    },
   });
 
 export async function generateMetadata({ params }: Props) {
@@ -71,6 +74,7 @@ export default async function PostPage({ params, searchParams }: Props) {
           <Link href={`/u/${post.author.username}`}>
             @{post.author.username}
           </Link>
+          {post._count.leituras > 0 && ` · lido por ${post._count.leituras}`}
           {post.visibility !== "PUBLICO" && (
             <>
               {" "}

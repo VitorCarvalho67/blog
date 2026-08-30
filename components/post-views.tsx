@@ -55,12 +55,25 @@ function Contagem({ n }: { n: number }) {
   return <> · {n === 1 ? "1 comentário" : `${n} comentários`}</>;
 }
 
+/**
+ * Quantas pessoas marcaram o post como lido.
+ *
+ * Zero não aparece: post recém-publicado carregaria um "lido por 0" que só
+ * anuncia que ninguém leu. E o texto é "lido por N", não "N leituras", porque
+ * na mesma linha já existe "3 min de leitura" e as duas se confundiriam.
+ */
+function Leram({ n }: { n: number }) {
+  if (n === 0) return null;
+  return <> · lido por {n}</>;
+}
+
 export function Cartao({ post }: { post: PostCard }) {
   return (
     <article className="card">
       <div className="meta">
         {dataCurta(post.createdAt)}
         <Contagem n={post._count.comentarios} />
+        <Leram n={post._count.leituras} />
         <Selo post={post} />
         <MarcaLida postId={post.id} />
       </div>
@@ -93,6 +106,7 @@ export function Linha({
           </>
         )}
         <Contagem n={post._count.comentarios} />
+        <Leram n={post._count.leituras} />
         <Selo post={post} />
         <MarcaLida postId={post.id} />
       </div>
