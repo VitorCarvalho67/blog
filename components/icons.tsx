@@ -69,3 +69,24 @@ export const Check = ({ size = 14 }: P) => (
     <path d="M8 12.3l2.6 2.6L16 9.5" />
   </svg>
 );
+
+/* Chevrons de código, para alternar entre o post formatado e o Markdown dele. */
+export const Codigo = ({ size = 14 }: P) => (
+  <svg {...svg(size)}>
+    <path d="M9 18l-6-6 6-6M15 6l6 6-6 6" />
+  </svg>
+);
+
+/* Marca do GitHub. Fora do molde dos outros ícones de propósito: o logo é uma
+   silhueta preenchida, e redesenhado a traço vira um borrão a 16px. */
+export const GitHub = ({ size = 16 }: P) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden
+  >
+    <path d="M12 .5a12 12 0 0 0-3.79 23.4c.6.1.82-.26.82-.58 0-.28-.01-1.02-.02-2A3.73 3.73 0 0 1 4.2 19.9c-.35-.9-.86-1.14-.86-1.14-.7-.48.06-.47.06-.47.78.05 1.19.8 1.19.8.69 1.19 1.81.85 2.25.65.07-.5.27-.85.49-1.04-2.13-.24-4.37-1.07-4.37-4.76 0-1.05.37-1.9.99-2.58-.1-.24-.43-1.22.09-2.54 0 0 .8-.26 2.64.98a9.1 9.1 0 0 1 4.8 0c1.83-1.24 2.63-.98 2.63-.98.52 1.32.19 2.3.1 2.54.61.68.98 1.53.98 2.58 0 3.7-2.25 4.51-4.39 4.75.35.3.65.88.65 1.77 0 1.28-.01 2.31-.01 2.62 0 .26.22.56.83.46A12 12 0 0 0 12 .5z" />
+  </svg>
+);

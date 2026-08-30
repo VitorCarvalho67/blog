@@ -8,13 +8,14 @@ import { renderizarMarkdown } from "@/lib/markdown";
 import { jaLeu } from "@/lib/leitura";
 import { ROTULO, filtroVisivel, podeLer } from "@/lib/visibilidade";
 import { Shell } from "@/components/shell";
+import { Codigo } from "@/components/icons";
 import { Tags } from "@/components/post-views";
 import Comentarios from "@/components/comentarios";
 import LidoToggle from "@/components/lido-toggle";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ responder?: string; e?: string }>;
+  searchParams: Promise<{ responder?: string; e?: string; md?: string }>;
 };
 
 const buscar = (slug: string) =>
@@ -43,7 +44,13 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function PostPage({ params, searchParams }: Props) {
-  const [{ slug }, { responder, e }] = await Promise.all([params, searchParams]);
+  const [{ slug }, { responder, e, md }] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  // ?md=1 mostra o Markdown de origem no lugar do post formatado. Estado na
+  // URL, não em cookie: assim o link para a fonte de um post é partilhável.
+  const verMd = md === "1";
   const [post, user] = await Promise.all([buscar(slug), getUser()]);
 
   const dono = !!user && post?.authorId === user.id;
@@ -51,7 +58,8 @@ export default async function PostPage({ params, searchParams }: Props) {
 
   const visivel = await filtroVisivel(user);
   const [html, lido, anterior, proximo] = await Promise.all([
-    renderizarMarkdown(post.body),
+    // na vista de fonte o HTML não vai para lugar nenhum: não vale convertê-lo
+    verMd ? "" : renderizarMarkdown(post.body),
     jaLeu(user?.id ?? null, post.id),
     prisma.post.findFirst({
       where: { AND: [visivel, { createdAt: { lt: post.createdAt } }] },
@@ -87,24 +95,36 @@ export default async function PostPage({ params, searchParams }: Props) {
         <Tags tags={post.tags} />
       </div>
 
-      <article className="md" dangerouslySetInnerHTML={{ __html: html }} />
-
-      {user && (
-        <div className="row" style={{ marginTop: "2.5rem" }}>
-          <LidoToggle postId={post.id} lido={lido} de={`/post/${post.slug}`} />
-          {dono && (
-            <>
-              <Link className="btn" href={`/escrever?id=${post.id}`}>
-                Editar
-              </Link>
-              <form action={apagar}>
-                <input type="hidden" name="id" value={post.id} />
-                <button className="secundario">Apagar</button>
-              </form>
-            </>
-          )}
-        </div>
+      {verMd ? (
+        <pre className="fonte-md">
+          <code>{post.body}</code>
+        </pre>
+      ) : (
+        <article className="md" dangerouslySetInnerHTML={{ __html: html }} />
       )}
+
+      <div className="row" style={{ marginTop: "2.5rem" }}>
+        <Link
+          className="btn"
+          href={verMd ? `/post/${post.slug}` : `/post/${post.slug}?md=1`}
+        >
+          <Codigo /> {verMd ? "Ver formatado" : "Ver Markdown"}
+        </Link>
+        {user && (
+          <LidoToggle postId={post.id} lido={lido} de={`/post/${post.slug}`} />
+        )}
+        {dono && (
+          <>
+            <Link className="btn" href={`/escrever?id=${post.id}`}>
+              Editar
+            </Link>
+            <form action={apagar}>
+              <input type="hidden" name="id" value={post.id} />
+              <button className="secundario">Apagar</button>
+            </form>
+          </>
+        )}
+      </div>
 
       <Comentarios
         post={post}

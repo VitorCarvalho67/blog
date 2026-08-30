@@ -8,7 +8,7 @@ import { getTema } from "@/lib/prefs";
 import { sair } from "@/lib/actions";
 import SearchForm from "@/components/search-form";
 import ThemeToggle from "@/components/theme-toggle";
-import { Rss } from "@/components/icons";
+import { GitHub, Rss } from "@/components/icons";
 import "./globals.css";
 
 const serif = Bitter({
@@ -24,6 +24,9 @@ const mono = JetBrains_Mono({
   variable: "--font-mono",
   display: "swap",
 });
+
+/** Repositório do blog, no botão do cabeçalho. */
+const REPOSITORIO = "https://github.com/VitorCarvalho67/blog";
 
 export const metadata: Metadata = {
   title: { default: "~/blog", template: "%s — ~/blog" },
@@ -95,6 +98,18 @@ export default async function RootLayout({
               <Link href="/rss.xml" className="btn ghost" title="Feed RSS">
                 <Rss />
               </Link>
+              {/* Único link para fora do site. rel="noreferrer" junto do
+                  target evita que a aba nova receba a referência a esta. */}
+              <a
+                className="btn ghost"
+                href={REPOSITORIO}
+                target="_blank"
+                rel="noreferrer"
+                title="Código do blog no GitHub"
+                aria-label="Código do blog no GitHub"
+              >
+                <GitHub />
+              </a>
               <ThemeToggle tema={tema} de={de} />
               {user ? (
                 <>

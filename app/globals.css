@@ -375,6 +375,24 @@ textarea { resize: vertical; min-height: 24rem; line-height: 1.8; }
 .foot-in { max-width: 1180px; margin: 0 auto; padding: 1.6rem 1.25rem 3rem; font-size: .78rem; color: var(--faint); display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; }
 .foot-in a { color: var(--dim); }
 
+/* ------------------------------------------------ Markdown de origem (?md=1) */
+/* Mesma caixa dos blocos de código do post, com uma diferença: aqui a linha
+   quebra. Um bloco de código rola na horizontal porque quebrar mudaria o
+   sentido do código; o corpo de um post é texto corrido, e rolagem lateral em
+   parágrafo longo deixaria a fonte ilegível no celular. */
+.fonte-md {
+  margin: 0;
+  padding: .9rem 1.05rem;
+  background: var(--bg-header);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: .82rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.fonte-md code { background: none; border: 0; padding: 0; font: inherit; }
+
 /* ------------------------------------------------------------------ selos */
 .selo {
   display: inline-block;
