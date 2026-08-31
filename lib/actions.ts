@@ -99,6 +99,8 @@ export async function salvarPerfil(fd: FormData) {
 export async function publicar(fd: FormData) {
   const user = await getUser();
   if (!user) redirect("/entrar");
+  // esconder o botão não é autorização: o POST forjado morre aqui
+  if (!user.writer) redirect("/pedidos");
 
   const id = str(fd, "id");
   const title = str(fd, "titulo");
@@ -228,6 +230,62 @@ export async function apagarComentario(fd: FormData) {
   }
 
   redirect(`/post/${comentario.post.slug}#comentarios`);
+}
+
+/* --------------------------------------------------- acesso de escrita */
+
+export async function pedirWriter(fd: FormData) {
+  const user = await getUser();
+  if (!user) redirect("/entrar");
+  if (user.writer) redirect("/pedidos");
+
+  const motivo = str(fd, "motivo").slice(0, 500) || null;
+
+  // upsert: pedido recusado pode ser refeito, voltando pra fila
+  await prisma.pedidoWriter.upsert({
+    where: { userId: user.id },
+    create: { userId: user.id, motivo },
+    update: { motivo, status: "PENDENTE", decisorId: null, decididoEm: null },
+  });
+
+  revalidatePath("/pedidos");
+  redirect("/pedidos?ok=1");
+}
+
+export async function decidirPedido(fd: FormData) {
+  const user = await getUser();
+  if (!user) redirect("/entrar");
+  if (!user.writer) redirect("/pedidos");
+
+  const id = str(fd, "id");
+  const aprovar = str(fd, "decisao") === "aprovar";
+
+  const pedido = await prisma.pedidoWriter.findUnique({
+    where: { id },
+    select: { id: true, userId: true, status: true },
+  });
+  // já decidido por outro writer enquanto esta página estava aberta
+  if (!pedido || pedido.status !== "PENDENTE") redirect("/pedidos");
+  // ninguém se aprova
+  if (pedido.userId === user.id) redirect("/pedidos?e=proprio");
+
+  // virar writer e registrar a decisão têm de acontecer juntos, ou nenhum dos dois
+  await prisma.$transaction([
+    prisma.pedidoWriter.update({
+      where: { id },
+      data: {
+        status: aprovar ? "APROVADO" : "RECUSADO",
+        decisorId: user.id,
+        decididoEm: new Date(),
+      },
+    }),
+    ...(aprovar
+      ? [prisma.user.update({ where: { id: pedido.userId }, data: { writer: true } })]
+      : []),
+  ]);
+
+  revalidatePath("/pedidos");
+  redirect("/pedidos");
 }
 
 /* ------------------------------------------------ liberação de acesso */

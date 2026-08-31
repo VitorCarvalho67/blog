@@ -606,3 +606,14 @@ textarea { resize: vertical; min-height: 24rem; line-height: 1.8; }
 @media (max-width: 560px) {
   .vizinhos .next { text-align: left; }
 }
+
+/* ------------------------------------------------------ pedidos de acesso */
+.pedido {
+  display: grid;
+  gap: .7rem;
+  padding: 1.1rem 1.15rem;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.pedido p { margin: 0; }

@@ -23,6 +23,7 @@ export default async function Escrever({
 }) {
   const user = await getUser();
   if (!user) redirect("/entrar");
+  if (!user.writer) redirect("/pedidos");
 
   const { id, e } = await searchParams;
   const post = id ? await prisma.post.findUnique({ where: { id } }) : null;

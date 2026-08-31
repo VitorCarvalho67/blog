@@ -25,7 +25,7 @@ export default async function Conta({
 
   const { e, ok } = await searchParams;
 
-  const [liberados, recebidos] = await Promise.all([
+  const [liberados, recebidos, pendentes] = await Promise.all([
     prisma.acesso.findMany({
       where: { ownerId: user.id },
       orderBy: { createdAt: "desc" },
@@ -40,6 +40,9 @@ export default async function Conta({
       orderBy: { createdAt: "desc" },
       select: { owner: { select: { username: true } } },
     }),
+    user.writer
+      ? prisma.pedidoWriter.count({ where: { status: "PENDENTE" } })
+      : 0,
   ]);
 
   return (
@@ -122,6 +125,27 @@ export default async function Conta({
                   </Link>
                 </span>
               ))}
+            </p>
+          )}
+        </section>
+
+        <section className="stack" style={{ marginTop: "2.5rem" }}>
+          <h2>Acesso de escrita</h2>
+          {user.writer ? (
+            <p className="meta">
+              Você é <span className="selo">writer</span> — publica posts e
+              decide quem mais pode.{" "}
+              <Link href="/pedidos">
+                {pendentes === 0
+                  ? "Ver os pedidos"
+                  : `${pendentes} ${pendentes === 1 ? "pedido esperando" : "pedidos esperando"}`}
+              </Link>
+              .
+            </p>
+          ) : (
+            <p className="meta">
+              Você ainda não publica posts.{" "}
+              <Link href="/pedidos">Pedir acesso de escrita</Link>.
             </p>
           )}
         </section>

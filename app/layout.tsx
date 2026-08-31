@@ -171,7 +171,7 @@ export default async function RootLayout({
             <Link href="/sobre" title="Política editorial da casa">
               escrito por gente
             </Link>
-            {user && <Link href="/escrever">escrever</Link>}
+            {user?.writer && <Link href="/escrever">escrever</Link>}
             {user && <Link href="/conta">conta</Link>}
           </nav>
         </footer>

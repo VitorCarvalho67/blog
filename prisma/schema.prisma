@@ -7,6 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
+enum StatusPedido {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
 enum Visibilidade {
   PUBLICO
   AMIGOS
@@ -19,6 +25,8 @@ model User {
   username     String    @unique
   passwordHash String
   bio          String?
+  /// só quem é writer publica. Conta nova entra sem, e pede acesso.
+  writer       Boolean   @default(false)
   createdAt    DateTime  @default(now()) @db.Timestamptz(3)
   posts        Post[]
   sessions     Session[]
@@ -29,6 +37,26 @@ model User {
   liberacoes Acesso[] @relation("Liberou")
   /// pessoas que liberaram este usuário
   acessos    Acesso[] @relation("Recebeu")
+
+  pedido   PedidoWriter?  @relation("PedidoDe")
+  decisoes PedidoWriter[] @relation("PedidoDecididoPor")
+}
+
+/// Pedido de acesso de escrita. Qualquer writer decide o pedido de qualquer um
+/// — não há administrador, é confiança em rede.
+model PedidoWriter {
+  id         String       @id @default(cuid())
+  userId     String       @unique
+  user       User         @relation("PedidoDe", fields: [userId], references: [id], onDelete: Cascade)
+  motivo     String?
+  status     StatusPedido @default(PENDENTE)
+  /// quem decidiu fica registrado: aprovação tem dono, não é anônima
+  decisorId  String?
+  decisor    User?        @relation("PedidoDecididoPor", fields: [decisorId], references: [id], onDelete: SetNull)
+  decididoEm DateTime?    @db.Timestamptz(3)
+  createdAt  DateTime     @default(now()) @db.Timestamptz(3)
+
+  @@index([status, createdAt])
 }
 
 model Session {

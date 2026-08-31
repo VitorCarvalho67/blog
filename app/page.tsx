@@ -58,7 +58,7 @@ export default async function Home({
         <div className="spread">
           <h1>Últimos posts</h1>
           <div className="row">
-            {user && (
+            {user?.writer && (
               <Link href="/escrever" className="btn contorno">
                 Escrever
               </Link>

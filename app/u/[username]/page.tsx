@@ -56,7 +56,7 @@ export default async function Perfil({ params, searchParams }: Props) {
         <div className="spread">
           <h1>@{perfil.username}</h1>
           <div className="row">
-            {dono && (
+            {dono && viewer?.writer && (
               <Link href="/escrever" className="btn contorno">
                 Escrever
               </Link>
