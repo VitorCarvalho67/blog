@@ -321,6 +321,20 @@ button:where(:not(.ghost, .link, .secundario)):hover,
   color: var(--sobre-acento);
 }
 
+/* Contorno: é botão e é da família da cor, mas sem o bloco cheio, que numa
+   página de conteúdo vira a coisa mais alta da tela. O preenchido fica pro
+   cabeçalho, onde ele disputa espaço só com ícones. */
+.btn.contorno {
+  background: none;
+  border-color: var(--accent);
+  color: var(--accent-txt);
+}
+.btn.contorno:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border-color: var(--accent);
+  color: var(--accent-hi);
+}
+
 /* ação destrutiva não deve parecer a ação principal da página */
 button.secundario { background: var(--card); border-color: var(--line); color: var(--fg); }
 button.secundario:hover { border-color: var(--accent); color: var(--accent-txt); }
@@ -551,7 +565,8 @@ textarea { resize: vertical; min-height: 24rem; line-height: 1.8; }
   .top nav { gap: 1.1rem; }
   .top .search { order: 5; flex: 1 1 100%; margin-left: 0; }
   .top .search input { width: 100%; padding-right: .7rem; }
-  .top-right { margin-left: auto; gap: .5rem; }
+  /* icones + identidade + sair: em tela estreita precisa poder quebrar */
+  .top-right { margin-left: auto; gap: .5rem; flex-wrap: wrap; justify-content: flex-end; }
   kbd { display: none; }          /* não existe Ctrl em touch */
 
   /* alvo de toque: ~40px de altura em vez de ~30 */

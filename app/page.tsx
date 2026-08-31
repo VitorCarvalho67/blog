@@ -57,7 +57,14 @@ export default async function Home({
 
         <div className="spread">
           <h1>Últimos posts</h1>
-          <ViewToggle vista={vista} de={cabecalhos.get("x-url") ?? "/"} />
+          <div className="row">
+            {user && (
+              <Link href="/escrever" className="btn contorno">
+                Escrever
+              </Link>
+            )}
+            <ViewToggle vista={vista} de={cabecalhos.get("x-url") ?? "/"} />
+          </div>
         </div>
 
         {destaques.length > 0 && (

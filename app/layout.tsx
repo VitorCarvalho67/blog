@@ -96,6 +96,10 @@ export default async function RootLayout({
       lang="pt-BR"
       data-theme={tema ?? undefined}
       className={`${serif.variable} ${mono.variable}`}
+      /* Extensões como o Dark Reader escrevem atributos na <html> antes do
+         React hidratar, e isso vira erro de hidratação que não é nosso. Vale
+         só para os atributos DESTE elemento — os filhos continuam conferidos. */
+      suppressHydrationWarning
     >
       <body>
         <a className="pular" href="#conteudo">
@@ -114,11 +118,6 @@ export default async function RootLayout({
               <Link href="/sobre" aria-current={aqui("/sobre")}>
                 Sobre
               </Link>
-              {user && (
-                <Link href="/escrever" aria-current={aqui("/escrever")}>
-                  Escrever
-                </Link>
-              )}
             </nav>
 
             {/* filha direta do cabeçalho: no mobile ela ganha a linha inteira */}
@@ -172,6 +171,7 @@ export default async function RootLayout({
             <Link href="/sobre" title="Política editorial da casa">
               escrito por gente
             </Link>
+            {user && <Link href="/escrever">escrever</Link>}
             {user && <Link href="/conta">conta</Link>}
           </nav>
         </footer>

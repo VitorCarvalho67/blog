@@ -55,12 +55,19 @@ export default async function Perfil({ params, searchParams }: Props) {
       <div className="stack">
         <div className="spread">
           <h1>@{perfil.username}</h1>
-          {posts.length > 0 && (
-            <ViewToggle
-              vista={vista}
-              de={cabecalhos.get("x-url") ?? `/u/${perfil.username}`}
-            />
-          )}
+          <div className="row">
+            {dono && (
+              <Link href="/escrever" className="btn contorno">
+                Escrever
+              </Link>
+            )}
+            {posts.length > 0 && (
+              <ViewToggle
+                vista={vista}
+                de={cabecalhos.get("x-url") ?? `/u/${perfil.username}`}
+              />
+            )}
+          </div>
         </div>
 
         <p className="meta">
